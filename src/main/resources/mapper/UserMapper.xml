@@ -5,7 +5,7 @@
 <!--xmlns="http://mybatis.org/schema/mybatis-mapper"-->
 <mapper namespace="com.example.cucumberstart.mapper.UserMapper">
     <select id="findAll" resultType="com.example.cucumberstart.entity.User">
-        select * from User
+        select * from user
     </select>
     <select id="findByName" resultType="User">
         select * from User where username=#{name}
@@ -13,7 +13,7 @@
     <select id="findPswByName" resultType="String">
         select password from user where username = #{username}
     </select>
-    <insert id="save">
+    <insert id="save" >
         insert into user(username,password) value (#{username},#{password})
     </insert>
 </mapper>

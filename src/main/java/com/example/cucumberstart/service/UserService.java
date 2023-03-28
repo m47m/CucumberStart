@@ -20,7 +20,6 @@ public class UserService {
     @Autowired
     UserMapper userMapper;
 
-
     // 登录操作
     public String login(User user) {
         try {
@@ -64,6 +63,7 @@ public class UserService {
     // 获取所有用户
     public List<User> findAll() {
         List<User> list = userMapper.findAll();
+
         return list;
     }
 

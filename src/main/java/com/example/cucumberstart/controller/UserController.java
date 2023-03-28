@@ -39,6 +39,7 @@ public class UserController {
     // 解决查询数据库中文出现乱码问题
     @RequestMapping(value = "/alluser", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<User> findAll() {
+
         return userService.findAll();
     }
 

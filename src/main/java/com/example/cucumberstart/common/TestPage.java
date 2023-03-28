@@ -17,7 +17,7 @@ public class TestPage {
             "--glue", "com.stepdefinitions",
            // "--glue", "com.testrunners",
 
-           // "classpath:static",
+            "classpath:static",
 
             "--plugin", "pretty",
             "--plugin", "json:target/classes/static/cucumber-reports/cucumber-json",

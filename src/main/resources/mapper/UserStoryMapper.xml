@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--xmlns="http://mybatis.org/schema/mybatis-mapper"-->
+<mapper namespace="com.example.cucumberstart.mapper.UserStoryMapper">
+    <update id="updateUserStory" parameterType="com.example.cucumberstart.entity.UserStory">
+        update cucumber_userstory
+        set userstory_name = #{userstoryName}, userstory_content = #{userstoryContent},
+            feature_name = #{featureName},feature_content = #{featureContent},feature_path = #{featurePath},
+            create_time = #{createTime},modify_time = #{modifyTime}
+        where userstory_id = #{userstoryId}
+
+    </update>
+    <select id="findAll" resultType="com.example.cucumberstart.entity.UserStory">
+        select * from cucumber_userstory
+    </select>
+    <select id="findById" resultType="com.example.cucumberstart.entity.UserStory">
+        select * from cucumber_userstory where userstory_id = #{userstoryId}
+    </select>
+    <insert id="createUserStory" useGeneratedKeys="true" keyProperty="userstoryId" parameterType="com.example.cucumberstart.entity.UserStory">
+        insert into cucumber_userstory(userstory_name, userstory_content, feature_name, feature_content, feature_path, create_time, modify_time)
+         value (#{userstoryName},#{userstoryContent},#{featureName},#{featureContent},#{featurePath},#{createTime},#{modifyTime} )
+    </insert>
+</mapper>
