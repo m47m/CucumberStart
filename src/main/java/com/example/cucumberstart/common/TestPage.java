@@ -20,7 +20,7 @@ public class TestPage {
             "classpath:static",
 
             "--plugin", "pretty",
-            "--plugin", "json:target/classes/static/cucumber-reports/cucumber-json",
+            "--plugin", "json:target/classes/static/cucumber-reports/cucumber-json.json",
             "--plugin", "html:target/classes/static/cucumber-reports/cucumberreport.html"
     };
 

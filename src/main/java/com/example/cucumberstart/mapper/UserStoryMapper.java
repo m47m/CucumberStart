@@ -22,4 +22,8 @@ public interface UserStoryMapper {
     void createUserStory(UserStory userStory);
 
     void updateUserStory(UserStory userStory);
+
+    int deleteById(Integer id);
+
+
 }

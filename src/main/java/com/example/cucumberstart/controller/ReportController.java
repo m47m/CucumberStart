@@ -1,19 +1,16 @@
 package com.example.cucumberstart.controller;
 
+
 import com.example.cucumberstart.common.ReportPage;
-import com.example.cucumberstart.entity.Feature;
+import com.example.cucumberstart.common.Result;
+import com.example.cucumberstart.entity.Report;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,47 +30,42 @@ public class ReportController {
     private ResourceLoader resourceLoader;
 
     @RequestMapping("/test")
-    public String getReportOfHtml()  throws Exception{
+    public Result<?> getReportOfHtml()  throws Exception{
         Resource[] resources = ResourcePatternUtils.getResourcePatternResolver(resourceLoader)
-                .getResources("classpath:static/**/*.html");
-
+                .getResources("classpath:static/**/*.json");
         InputStream inputStream = resources[0].getInputStream();
-//        InputStreamReader inputStreamReader
-//               = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
 
-//        String result = new String(inputStream.readAllBytes());
-
+        // read json to String
         ByteArrayOutputStream result = new ByteArrayOutputStream();
-
         byte[] buffer = new byte[1024];
         int length;
         while ((length = inputStream.read(buffer)) != -1) {
             result.write(buffer, 0, length);
         }
-
-        String result_ = result.toString();
+        String result_ = result.toString(StandardCharsets.UTF_8.name());
 
         result.close();
 
-        return result_;
+       // JSONArray objects = JSON.parseArray(result_);
 
 
+
+        return Result.success();
 
     }
 
-    @GetMapping("/generate")
-    public String getReportOfWord() {
+    @PostMapping("/generate")
+    public Result getReportOfWord(@RequestBody Report report){
         ReportPage reportPage = new ReportPage();
-
         try {
-            reportPage.createReport(this.resourceLoader);
-            return "success";
+            reportPage.createReport(this.resourceLoader,report);
+            return Result.success();
         } catch (IOException e) {
             e.printStackTrace();
-            return "failure";
+            return Result.failed();
         }
-
-
     }
+
+
 
 }

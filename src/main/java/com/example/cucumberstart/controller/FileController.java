@@ -3,8 +3,6 @@ package com.example.cucumberstart.controller;
 
 import com.example.cucumberstart.CucumberStartApplication;
 import com.example.cucumberstart.entity.Feature;
-import com.github.qrpcode.util.IoUtil;
-import org.mockito.internal.util.io.IOUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -20,8 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 

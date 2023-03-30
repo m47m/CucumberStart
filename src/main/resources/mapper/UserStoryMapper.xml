@@ -22,4 +22,8 @@
         insert into cucumber_userstory(userstory_name, userstory_content, feature_name, feature_content, feature_path, create_time, modify_time)
          value (#{userstoryName},#{userstoryContent},#{featureName},#{featureContent},#{featurePath},#{createTime},#{modifyTime} )
     </insert>
+
+    <delete id="deleteById" parameterType="com.example.cucumberstart.entity.UserStory">
+        delete from cucumber_userstory where userstory_id = #{userstoryId}
+    </delete>
 </mapper>

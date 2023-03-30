@@ -49,4 +49,9 @@ public class UserStoryService {
         List<UserStory> list = userStoryMapper.findAll();
         return list;
     }
+
+
+    public int deleteById(Integer id){
+        return userStoryMapper.deleteById(id);
+    }
 }
