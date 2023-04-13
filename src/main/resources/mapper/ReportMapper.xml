@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--xmlns="http://mybatis.org/schema/mybatis-mapper"-->
+<mapper namespace="com.example.cucumberstart.mapper.ReportMapper">
+    <insert id="createReport" useGeneratedKeys="true" keyProperty="reportId" parameterType="com.example.cucumberstart.entity.Report" >
+        insert into report_info(template_name, project_name, curriculum_group, project_introduction, network, hardware, software, test_method, script_generation_tool, test_conclusion, create_time, update_time)
+        value (#{templateName},#{projectName},#{curriculumGroup},#{projectIntroduction},#{network},#{hardware},#{software},#{testMethod},#{scriptGenerationTool},#{testConclusion},#{createTime},#{updateTime})
+    </insert>
+    <update id="updateReport">
+        update report_info set template_name=#{templateName}, project_name=#{projectName}, curriculum_group=#{curriculumGroup}, project_introduction=#{projectIntroduction}, network=#{network}, hardware=#{hardware}, software=#{software}, test_method=#{testMethod}, script_generation_tool=#{scriptGenerationTool}, test_conclusion=#{testConclusion}, update_time=#{updateTime}
+        where report_id=#{reportId}
+    </update>
+    <delete id="deleteReport">
+        delete from report_info where report_id=#{reportId}
+    </delete>
+    <select id="findAllReports" resultType="com.example.cucumberstart.entity.Report">
+        select * from report_info
+    </select>
+</mapper>

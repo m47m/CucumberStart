@@ -1,5 +1,8 @@
 package com.example.cucumberstart.common;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.example.cucumberstart.entity.Feature;
 import com.example.cucumberstart.entity.Report;
 import com.github.qrpcode.domain.WordGo;
@@ -8,10 +11,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternUtils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -104,52 +107,93 @@ public class ReportPage {
                 "font-size:13;color:#000000;");
 
         //获取feature ，并输出
-        Resource[] resources = ResourcePatternUtils.getResourcePatternResolver(resourceLoader)
-                .getResources("classpath:static/*.feature");
 
+        File file = new File("D:\\notes\\毕业设计\\TestDir\\AppFeatures");
+        File[] tempList = file.listFiles();
         List<Feature> features = new ArrayList<>();
 
-        for(Resource resource : resources){
-            try(InputStream inputStream = resource.getInputStream()){
+        for (int i = 0; i < tempList.length; i++) {
+            if (tempList[i].isFile()) {
+                String content = "";
+                StringBuilder builder = new StringBuilder();
+                InputStreamReader streamReader = new InputStreamReader(new FileInputStream(tempList[i]),"UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(streamReader);
 
-                ByteArrayOutputStream result = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = inputStream.read(buffer)) != -1) {
-                    result.write(buffer, 0, length);
+                while ((content = bufferedReader.readLine()) != null) {
+                    builder.append(content);
+                    builder.append("\r\n");
                 }
+                bufferedReader.close();
+                streamReader.close();
 
-                String result_ = result.toString();
+                features.add(new Feature(features.size(),tempList[i].getName(),tempList[i].lastModified(),tempList[i].length(),builder.toString()));
 
-                features.add(new Feature(features.size(),resource.getFilename(),resource.lastModified(),resource.contentLength(),result_));
-
-                //String[] name = Objects.requireNonNull(resource.getFilename()).split(".");
-                wordGo.add("3."+features.size()+" "+resource.getFilename()+"模块"+"\n","font-size: 13; color: #000000;font-weight:bold");
-
-                wordGo.add(result_,"font-size: 11; color: #000000");
+                wordGo.add("3."+features.size()+" "+tempList[i].getName()+"模块"+"\n","font-size: 13; color: #000000;font-weight:bold");
+                wordGo.add(builder.toString(),"font-size: 11; color: #000000");
                 wordGo.addLine("","");
-                result.close();
-
-            }catch (IOException e){
-                e.printStackTrace();
             }
         }
 
+
+
         //性能测试设计与执行
-        wordGo.add("性能测试设计与执行\n","font-size:15;color:#000000;font-weight:bold");
+        wordGo.add("四、性能测试设计与执行\n","font-size:15;color:#000000;font-weight:bold");
 
         //测试结论
-        wordGo.add("测试结论\n","font-size:15;color:#000000;font-weight:bold");
+        wordGo.add("五、测试结论\n","font-size:15;color:#000000;font-weight:bold");
+        wordGo.add("5.1测试用例执行结论\n","font-size:13;color:#000000;font-weight:bold");
+
+        File fileofJson = new File("D:\\notes\\毕业设计\\TestDir\\cucumber-reports\\cucumber.json");
+        BufferedReader br = new BufferedReader(new FileReader(fileofJson));
+        String resultTestJson = "";
+        String s = null;
+        while((s = br.readLine())!=null){//使用readLine方法，一次读一行
+            resultTestJson += s;
+        }
+        br.close();
+
+        HashMap<String, Integer> stepResultMap = new HashMap<>();
+        HashMap<String, Integer> scenarioResultMap = new HashMap<>();
+        HashMap<String, Integer> featureResultMap = new HashMap<>();
+        int featureSize = 0;
+        int scenarioSize = 0;
+        int stepsSize = 0;
+        // String to json
+        JSONArray jsonArray = JSON.parseArray(resultTestJson);
+        featureSize = jsonArray.size();
+        //get elements in jsonArray
+        jsonArray.forEach(item->{
+            JSONObject jsonObject = (JSONObject) item;
+            //one feature result
+            jsonObject.getJSONArray("elements").forEach(element->{
+
+                JSONObject elementObject = (JSONObject) element;
+                //one scenario result
+                elementObject.getJSONArray("steps").forEach(step->{
+                    JSONObject stepObject = (JSONObject) step;
+//                    System.out.println(stepObject.getString("name")+"-------"+stepObject.getJSONObject("result").getString("status"));
+                    stepResultMap.put(stepObject.getJSONObject("result").getString("status"),
+                            stepResultMap.getOrDefault(stepObject.getJSONObject("result").getString("status"),0)+1);
+                });
+
+
+            });
+        });
+
+
+        stepsSize = stepResultMap.values().stream().mapToInt(value -> value).sum();
+        wordGo.add("本次测试测试用例共"+featureSize+"个。具体测试结果如下\n","font-size:13;color:#000000;");
+
+        wordGo.add("本次测试测试步骤共"+stepsSize+"步。具体测试结果如下\n","font-size:13;color:#000000;");
+        stepResultMap.forEach((key,value)->{
+            wordGo.add(key+"："+value+"次\n","font-size:13;color:#000000;");
+        });
+        wordGo.add("5.2测试问题统计分析\n","font-size:13;color:#000000;font-weight:bold");
+        wordGo.add("5.3测试测试结论与建议\n","font-size:13;color:#000000;font-weight:bold");
         wordGo.add(report.getTestConclusion(),"font-size:13;color:#000000;");
 
-        //生成文件
-        //wordGo.create("E:\\demo.docx");
 
-        ClassPathResource classPathResource = new ClassPathResource("static");
+        wordGo.create("D:\\notes\\毕业设计\\TestDir\\report.docx");
 
-        String resource = classPathResource.getURL().getPath();
-
-        System.out.println(resource);
-        wordGo.create(resource+"/report.docx");
     }
 }

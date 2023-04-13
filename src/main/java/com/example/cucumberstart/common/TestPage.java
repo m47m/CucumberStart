@@ -14,10 +14,9 @@ import java.util.stream.Stream;
 public class TestPage {
 
     private static String[] defaultOptions = {
-            "--glue", "com.stepdefinitions",
-           // "--glue", "com.testrunners",
+            "classpath:AppFeatures",
 
-            "classpath:static",
+            "-g", "com.stepdefinitions",
 
             "--plugin", "pretty",
             "--plugin", "json:target/classes/static/cucumber-reports/cucumber-json.json",
@@ -27,44 +26,14 @@ public class TestPage {
     public static void main(String[] args) throws Throwable{
         try {
 
-            Stream<String> cucumberOptions = Stream.concat(Stream.of(defaultOptions), Stream.of(args));
+           // Stream<String> cucumberOptions = Stream.concat(Stream.of(defaultOptions), Stream.of(args));
+           // Main.run(cucumberOptions.toArray(String[]::new), Thread.currentThread().getContextClassLoader());
 
-            Main.main(cucumberOptions.toArray(String[]::new));
 
-//            Main.main("-g","com.stepdefinitions",
-//                    "-g","com.parallel",
-//                    "-g","com.testrunners",
-//
-//                    "classpath:static",
-//
-//                    "-t","@login",
-//
-//                    "-p","pretty",
-//                    "-p","json:target/cucumber-reports/cucumber-json",
-//                    "-p","html:target/cucumber-reports/cucumberreport.html");
-
+            Main.run(defaultOptions,Thread.currentThread().getContextClassLoader());
         }catch(Exception e){
             e.printStackTrace();
         }
     }
-//    @Test
-//    public void Test(){
-//        try {
-//            Main.main("-g","com.stepdefinitions",
-//                    "-g","com.parallel",
-//                    "-g","com.testrunners",
-//
-//                    "classpath:static",
-//
-//                    "-t","@home",
-//
-//                    "-p","pretty",
-//
-//                    "-p","json:target/cucumber-reports/cucumber-json",
-//                    "-p","html:target/cucumber-reports/cucumberreport.html");
-//
-//        }catch(Exception e){
-//            e.printStackTrace();
-//        }
-//    }
+
 }

@@ -26,17 +26,13 @@ public class UserStoryController {
     @Autowired
     UserStoryService userStoryService;
 
-//    @RequestMapping(value = "/all", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-//    public List<UserStory> findAll() {
-//        return userStoryService.findAll();
-//    }
     @RequestMapping(value = "/all", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Result<List<UserStory>> findAll() {
           return Result.success(userStoryService.findAll());
     }
     @PostMapping(value = "/create")
     public String createUserStory(@RequestBody UserStory userStory){
-        long timestamp = System.currentTimeMillis() / 1000;
+        long timestamp = System.currentTimeMillis();
         userStory.setCreateTime(timestamp);
         userStoryService.createUserStory(userStory);
 
@@ -46,7 +42,7 @@ public class UserStoryController {
     @PostMapping(value = "/update")
     public Result<UserStory> updateUserStory(@RequestBody UserStory userStory){
 
-        long timestamp = System.currentTimeMillis() / 1000;
+        long timestamp = System.currentTimeMillis() ;
         userStory.setModifyTime(timestamp);
 
         userStoryService.updateUserStory(userStory);

@@ -19,8 +19,9 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-    <dependencies>
 
+
+    <dependencies>
         <!--启动项-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -43,19 +44,22 @@
 <!--            <scope>test</scope>-->
 <!--        </dependency>-->
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <version>2.4.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-test</artifactId>-->
+<!--            <version>2.4.3</version>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <groupId>org.junit.vintage</groupId>-->
+<!--                    <artifactId>junit-vintage-engine</artifactId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
 
         <!--cucumber start-->
+
+
+
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-core</artifactId>
@@ -63,30 +67,50 @@
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-testng</artifactId>
+            <artifactId>cucumber-junit</artifactId>
             <version>6.8.1</version>
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
             <version>6.8.1</version>
-            <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+        </dependency>
+
+        <!--cucumber end-->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
             <version>3.141.59</version>
         </dependency>
 
+        <dependency>
+            <groupId>wordgo</groupId>
+            <artifactId>wordgo</artifactId>
+            <systemPath>${pom.basedir}/wordgo-1.0-SNAPSHOT.jar</systemPath>
+            <scope>system</scope>
+            <version>1</version>
+        </dependency>
 
+        <dependency>
+            <groupId>cucumbertest</groupId>
+            <artifactId>cucumbertest</artifactId>
+            <systemPath>${pom.basedir}/cucumber-father-1.0-SNAPSHOT-jar-with-dependencies.jar</systemPath>
+            <scope>system</scope>
+            <version>1</version>
+        </dependency>
 
         <!-- fastjson2 -->
-        <!--        <dependency>-->
-        <!--            <groupId>com.alibaba.fastjson2</groupId>-->
-        <!--            <artifactId>fastjson2</artifactId>-->
-        <!--            <version>2.0.26</version>-->
-        <!--        </dependency>-->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>2.0.26</version>
+            </dependency>
 
         <!--数据库依赖-->
         <dependency>
@@ -103,6 +127,7 @@
         </dependency>
 
 
+
     </dependencies>
 
     <build>
@@ -110,6 +135,17 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -117,8 +153,15 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                    <compilerArguments>
+                        <!-- 打包本地jar包 -->
+                        <extdirs>${project.basedir}/lib</extdirs>
+                    </compilerArguments>
                 </configuration>
             </plugin>
+
+
         </plugins>
 
         <resources>
@@ -145,6 +188,13 @@
                     <include>**/*</include>
                 </includes>
                 <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>lib</directory>
+                <targetPath>BOOT-INF/lib/</targetPath>
+                <includes>
+                    <include>**/*.jar</include>
+                </includes>
             </resource>
         </resources>
     </build>

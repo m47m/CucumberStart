@@ -1,12 +1,10 @@
 package com.example.cucumberstart.controller;
 
+import com.example.cucumberstart.common.Result;
 import com.example.cucumberstart.entity.User;
 import com.example.cucumberstart.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,9 +23,16 @@ public class UserController {
     UserService userService;
 
     // 登录
-    @RequestMapping("/login")
-    public String login(User user) {
-        return userService.login(user);
+    @GetMapping("/login")
+    public Result<?> login(User user) {
+        String result = userService.login(user);
+        if(result.equals("-1")) {
+            return Result.failed("密码错误");
+        }else if(result.equals("-2")) {
+            return Result.failed("账号不存在");
+        }else {
+            return Result.success(result);
+        }
     }
 
     // 注册
@@ -37,9 +42,8 @@ public class UserController {
     }
 
     // 解决查询数据库中文出现乱码问题
-    @RequestMapping(value = "/alluser", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/all", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<User> findAll() {
-
         return userService.findAll();
     }
 

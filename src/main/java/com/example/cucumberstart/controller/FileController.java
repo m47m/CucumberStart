@@ -1,8 +1,13 @@
 package com.example.cucumberstart.controller;
-
-
+import ch.qos.logback.core.util.FileUtil;
+import com.cucumbertest.common.BasePage;
 import com.example.cucumberstart.CucumberStartApplication;
+import com.example.cucumberstart.common.Result;
 import com.example.cucumberstart.entity.Feature;
+import com.example.cucumberstart.entity.UserStory;
+import com.example.cucumberstart.service.UserStoryService;
+import org.apache.ibatis.jdbc.Null;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -15,13 +20,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
-
-
+import java.util.concurrent.CompletableFuture;
 import com.example.cucumberstart.common.TestPage;
 
 
@@ -37,14 +44,16 @@ public class FileController {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @Autowired
+    UserStoryService userStoryService;
+
     @RequestMapping("/list")
     public List<Feature> FeatureList()  throws Exception{
         Resource[] resources = ResourcePatternUtils.getResourcePatternResolver(resourceLoader)
-                .getResources("classpath:static/*.feature");
+                .getResources("classpath:AppFeatures/*.feature");
 
         List<Feature> features = new ArrayList<>();
 
-//       ByteArrayOutputStream result = new ByteArrayOutputStream();
         for(Resource resource : resources){
 
             try(InputStream inputStream = resource.getInputStream()){
@@ -58,12 +67,6 @@ public class FileController {
 
                 String result_ = result.toString();
 
-
-//                System.out.println(result_);
-//                System.out.println("-------");
-
-                //String result = new String(inputStream.readAllBytes());
-                //System.out.println(resource.getFilename()+resource.getURL()+resource.contentLength());
                 features.add(new Feature(features.size(),resource.getFilename(),resource.lastModified(),resource.contentLength(),result_));
                 result.close();
 
@@ -75,89 +78,119 @@ public class FileController {
         return features;
     }
 
+    @GetMapping("/all")
+    public List<Feature> FeatureAll() throws Exception{
+        File file = new File("D:\\notes\\毕业设计\\TestDir\\AppFeatures");
+        File[] tempList = file.listFiles();
 
-    @RequestMapping("/test")
-    public String FeatureTest() {
+        List<Feature> features = new ArrayList<>();
 
-        String[] argument = {"classpath:static/HomePage.feature"};
+        for (int i = 0; i < tempList.length; i++) {
+             if (tempList[i].isFile()) {
+                String content = "";
+                StringBuilder builder = new StringBuilder();
+                InputStreamReader streamReader = new InputStreamReader(new FileInputStream(tempList[i]),"UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(streamReader);
 
+                while ((content = bufferedReader.readLine()) != null) {
+                    builder.append(content);
+                    builder.append("\r\n");
+                }
+                bufferedReader.close();
+                streamReader.close();
 
-        try {
-            TestPage.main(argument);
-//            return "测试成功！";
-        } catch (SecurityException e) {
-            System.out.println("Ignore exit");
-           return "测试成功~";
-        } catch (Throwable throwable) {
-            System.out.println("throwable none");
-            throwable.printStackTrace();
-            return "测试失败";
+                features.add(new Feature(features.size(),tempList[i].getName(),tempList[i].lastModified(),tempList[i].length(),builder.toString()));
+             }
         }
-
-//        MThread mThread = new MThread("");
-//        Thread t1 = new Thread(mThread);
-//
-//        t1.start();
-
-
-        return "测试结束";
+        return features;
     }
 
+    @GetMapping("/update")
+    public Result<?> FeatureUpdate(){
+        File file = new File("D:\\notes\\毕业设计\\TestDir\\AppFeatures");
+        try {
+            FileUtils.cleanDirectory(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        userStoryService.findAll().forEach(userStory -> {
+            if(!(userStory.getFeatureName() == null)){
+                Path path = Paths.get("D:\\notes\\毕业设计\\TestDir\\AppFeatures\\"+userStory.getFeatureName()+".feature");
+                try {
+                    Files.createFile(path);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+                try (BufferedWriter writer =
+                             Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+                    writer.write(userStory.getFeatureContent());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+//        //追加写模式
+//        try (BufferedWriter writer =
+//                     Files.newBufferedWriter(path,
+//                             StandardCharsets.UTF_8,
+//                             StandardOpenOption.APPEND)){
+//            writer.write("!!!Feature End!!!");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        return Result.success("更新成功");
+
+    }
 
     @GetMapping("/test")
-    public String FeatureTestOne(@RequestParam(value = "featureName")String featureName){
+    public String FeatureTestOne(@RequestParam(value = "featureName")String featureName) throws IOException {
+        String[] argument ={};
+        Runtime r = Runtime.getRuntime();
+        String cucumberJarPath = "D:\\notes\\IDEA_PROJECT\\cucumber-father\\target\\cucumber-father-1.0-SNAPSHOT-jar-with-dependencies.jar";
+
+        String featurePath = "";
 
 
-        String[] argument = {"classpath:static/"+featureName};
+        if(featureName.equals("")){
+           featurePath = "D:\\notes\\毕业设计\\TestDir\\AppFeatures\\";
+        }else {
+            featurePath = "D:\\notes\\毕业设计\\TestDir\\AppFeatures\\"+featureName+".feature";;
+        }
+        String cmd = "java -jar "+cucumberJarPath+" "+featurePath;
 
-        System.out.println(argument);
 
 
-        try {
-            TestPage.main(argument);
-//            return "测试成功！";
-        } catch (SecurityException e) {
-            System.out.println("Ignore exit");
-            return "测试成功~";
-        } catch (Throwable throwable) {
-            System.out.println("throwable none");
-            throwable.printStackTrace();
-            return "测试失败";
+        try{
+            Process proc = r.exec(cmd);
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
+            }
+            int exitVal = proc.waitFor();
+            System.out.println("Process exitValue: " + exitVal);
+        }catch(Exception e){
+            e.printStackTrace();
         }
 
 
+//        CompletableFuture.runAsync(() -> {
+//            try {
+//                TestPage.main(argument);
+//            } catch (Throwable throwable) {
+//                System.out.println("throwable none");
+//                throwable.printStackTrace();
+//            }
+//        });
 
         return featureName+ "测试结束";
     }
 
 }
-
-//class MThread implements Runnable{
-//
-//    private String argument = "";
-//    private String result = "测试结束";
-//
-//    MThread(String argument){
-//        this.argument = argument;
-//    }
-//
-//    public String getResult() {
-//        return result;
-//    }
-//
-//    public void setResult(String result) {
-//        this.result = result;
-//    }
-//
-//    @Override
-//    public void run() {
-//        try {
-//            TestPage.main();
-//        } catch (Throwable throwable) {
-//            throwable.printStackTrace();
-//        }
-//    }
-//}
-
 
 

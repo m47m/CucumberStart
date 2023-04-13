@@ -14,6 +14,7 @@ import lombok.ToString;
 @ToString
 public class Report {
     private Integer reportId;
+    private String templateName;
     private String projectName;
     private String curriculumGroup;
     private String projectIntroduction;
@@ -23,4 +24,6 @@ public class Report {
     private String testMethod;
     private String scriptGenerationTool;
     private String testConclusion;
+    private Long createTime;
+    private Long updateTime;
 }

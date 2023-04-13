@@ -24,15 +24,18 @@ public class UserService {
     public String login(User user) {
         try {
             User userExistN = userMapper.findByName(user.getUsername());
+
+            System.out.println(userExistN);
+
             if (userExistN != null) {
                 String userExistP = userMapper.findPswByName(user.getUsername());
                 if (userExistP.equals(user.getPassword())) {
-                    return user.getUsername()+"登录成功，欢迎您！";
+                    return userExistN.getRole();
                 }else{
-                    return "登录失败，密码错误！";
+                    return "-1";
                 }
             }else {
-                return "登录失败，用户不存在!";
+                return "-2";
             }
         }catch (Exception e) {
             e.printStackTrace();

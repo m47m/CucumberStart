@@ -11,7 +11,7 @@ import java.security.Permission;
 public class IgnoreExitCall extends SecurityManager{
     @Override
     public void checkExit(int status) {
-        throw new SecurityException();
+       // throw new SecurityException();
     }
 
     @Override

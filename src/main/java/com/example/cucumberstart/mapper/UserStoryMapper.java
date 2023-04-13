@@ -20,7 +20,6 @@ public interface UserStoryMapper {
     List<UserStory> findAll();
     UserStory findById(Integer id);
     void createUserStory(UserStory userStory);
-
     void updateUserStory(UserStory userStory);
 
     int deleteById(Integer id);
