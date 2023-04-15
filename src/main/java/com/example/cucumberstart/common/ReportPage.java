@@ -153,41 +153,70 @@ public class ReportPage {
         br.close();
 
         HashMap<String, Integer> stepResultMap = new HashMap<>();
+        HashMap<String, String> scenarioResultInfoMap = new HashMap<>();
         HashMap<String, Integer> scenarioResultMap = new HashMap<>();
+        HashMap<String, String> featureResultInfoMap = new HashMap<>();
         HashMap<String, Integer> featureResultMap = new HashMap<>();
+
         int featureSize = 0;
         int scenarioSize = 0;
         int stepsSize = 0;
         // String to json
-        JSONArray jsonArray = JSON.parseArray(resultTestJson);
-        featureSize = jsonArray.size();
-        //get elements in jsonArray
-        jsonArray.forEach(item->{
-            JSONObject jsonObject = (JSONObject) item;
+        JSONArray jsonArrayFeatures = JSON.parseArray(resultTestJson);
+        featureSize = jsonArrayFeatures.size();
+
+        for(int i = 0;i<jsonArrayFeatures.size();i++){
             //one feature result
-            jsonObject.getJSONArray("elements").forEach(element->{
+            JSONObject jsonObjectFeature = jsonArrayFeatures.getJSONObject(i);
 
-                JSONObject elementObject = (JSONObject) element;
+            featureResultInfoMap.put(jsonObjectFeature.getString("name"),checkFeature(jsonObjectFeature));
+            featureResultMap.put(checkFeature(jsonObjectFeature),featureResultMap.getOrDefault(checkFeature(jsonObjectFeature),0)+1);
+            JSONArray jsonArrayElements = jsonObjectFeature.getJSONArray("elements");
+            scenarioSize += jsonArrayElements.size();
+
+            for(int j = 0;j<jsonArrayElements.size();j++){
                 //one scenario result
-                elementObject.getJSONArray("steps").forEach(step->{
-                    JSONObject stepObject = (JSONObject) step;
-//                    System.out.println(stepObject.getString("name")+"-------"+stepObject.getJSONObject("result").getString("status"));
-                    stepResultMap.put(stepObject.getJSONObject("result").getString("status"),
-                            stepResultMap.getOrDefault(stepObject.getJSONObject("result").getString("status"),0)+1);
-                });
+                JSONObject jsonObjectElement = jsonArrayElements.getJSONObject(j);
+                JSONArray jsonArraySteps = jsonObjectElement.getJSONArray("steps");
+                stepsSize += jsonArraySteps.size();
 
+                scenarioResultInfoMap.put(jsonObjectElement.getString("name"),checkScenario(jsonObjectElement));
+                scenarioResultMap.put(checkScenario(jsonObjectElement),scenarioResultMap.getOrDefault(checkScenario(jsonObjectElement),0)+1);
 
-            });
-        });
+                for(int k = 0;k<jsonArraySteps.size();k++){
+                    //one step result
+                    JSONObject jsonObjectSteps = jsonArraySteps.getJSONObject(k);
+                    String status = jsonObjectSteps.getJSONObject("result").getString("status");
+                    stepResultMap.put(status,stepResultMap.getOrDefault(status,0)+1);
+                }
+            }
+        }
+
 
 
         stepsSize = stepResultMap.values().stream().mapToInt(value -> value).sum();
         wordGo.add("本次测试测试用例共"+featureSize+"个。具体测试结果如下\n","font-size:13;color:#000000;");
-
+        featureResultMap.forEach((key,value)->{
+            wordGo.add(key+"："+value+"个\n","font-size:13;color:#000000;");
+        });
+        wordGo.add("本次测试测试场景共"+scenarioSize+"个。具体测试结果如下\n","font-size:13;color:#000000;");
+        scenarioResultMap.forEach((key,value)->{
+            wordGo.add(key+"："+value+"个\n","font-size:13;color:#000000;");
+        });
         wordGo.add("本次测试测试步骤共"+stepsSize+"步。具体测试结果如下\n","font-size:13;color:#000000;");
         stepResultMap.forEach((key,value)->{
             wordGo.add(key+"："+value+"次\n","font-size:13;color:#000000;");
         });
+
+        wordGo.add("测试用例执行的具体情况\n","font-size:13;color:#000000;font-weight:bold");
+        featureResultInfoMap.forEach((key,value)->{
+            wordGo.add(key+"："+value+"\n","font-size:13;color:#000000;");
+        });
+        wordGo.add("测试场景执行的具体情况\n","font-size:13;color:#000000;font-weight:bold");
+        scenarioResultInfoMap.forEach((key,value)->{
+            wordGo.add(key+"："+value+"\n","font-size:13;color:#000000;");
+        });
+
         wordGo.add("5.2测试问题统计分析\n","font-size:13;color:#000000;font-weight:bold");
         wordGo.add("5.3测试测试结论与建议\n","font-size:13;color:#000000;font-weight:bold");
         wordGo.add(report.getTestConclusion(),"font-size:13;color:#000000;");
@@ -196,4 +225,34 @@ public class ReportPage {
         wordGo.create("D:\\notes\\毕业设计\\TestDir\\report.docx");
 
     }
+
+    public String  checkScenario(JSONObject scenario){
+        JSONArray steps = scenario.getJSONArray("steps");
+        if(steps.size() == 0){
+            return "unknown";
+        }
+        for(int i = 0;i<steps.size();i++){
+            JSONObject step = steps.getJSONObject(i);
+            String status = step.getJSONObject("result").getString("status");
+            if(!status.equals("passed")){
+                return status;
+            }
+        }
+        return "passed";
+    }
+    public String  checkFeature(JSONObject feature){
+        JSONArray elements = feature.getJSONArray("elements");
+        for(int i = 0;i<elements.size();i++){
+            JSONObject element = elements.getJSONObject(i);
+            String status = checkScenario(element);
+
+            if(!status.equals("passed")){
+                return status;
+            }
+        }
+        return "passed";
+    }
+
+
+
 }

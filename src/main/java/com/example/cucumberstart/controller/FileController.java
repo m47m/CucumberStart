@@ -151,7 +151,7 @@ public class FileController {
     public String FeatureTestOne(@RequestParam(value = "featureName")String featureName) throws IOException {
         String[] argument ={};
         Runtime r = Runtime.getRuntime();
-        String cucumberJarPath = "D:\\notes\\IDEA_PROJECT\\cucumber-father\\target\\cucumber-father-1.0-SNAPSHOT-jar-with-dependencies.jar";
+        String cucumberJarPath = "D:\\notes\\毕业设计\\TestDir\\cucumber-father-1.0-SNAPSHOT-jar-with-dependencies.jar";
 
         String featurePath = "";
 
